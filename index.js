@@ -25,12 +25,11 @@ const swaggerOptions = {
       description: "API para registro de novedades de Tostadas Valencia SAS",
     },
   },
-  apis: ["./routes/users.js", "./routes/cases.js", "./routes/assignee.js"], // Rutas a tus archivos de rutas con anotaciones Swagger
+  apis: ["./routes/users.js", "./routes/cases.js", "./routes/assignee.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-// Agregar la documentación Swagger a la ruta /api-docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.listen(port, () =>
