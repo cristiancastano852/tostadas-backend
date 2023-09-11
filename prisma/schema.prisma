@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  name      String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  role      UserRole   @default(CLIENTE)
+  cases     Case[]
+  assignees assignee[]
+}
+
+model Case {
+  id          String     @id @default(uuid())
+  title       String
+  authorId    String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  description String
+  status      caseStatus @default(PENDIENTE)
+  ticket      String     @unique
+  type        caseType
+  author      User       @relation(fields: [authorId], references: [id])
+  assignees   assignee[]
+}
+
+model assignee {
+  id        String   @id @default(uuid())
+  userId    String
+  caseId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  case      Case     @relation(fields: [caseId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+enum UserRole {
+  CLIENTE
+  ASESOR
+}
+
+enum caseStatus {
+  PENDIENTE
+  FINALIZADO
+}
+
+enum caseType {
+  FELICITACIONES
+  RECLAMOS
+  QUEJAS
+  SOLICITUDES
+}
