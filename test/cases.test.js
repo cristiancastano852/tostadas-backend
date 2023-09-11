@@ -1,6 +1,6 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
-import app from "../index.js"; // Asegúrate de reemplazar con la ubicación correcta de tu archivo index.js
+import app, { closeServer } from "../index.js"; // Asegúrate de reemplazar con la ubicación correcta de tu archivo index.js
 const expect = chai.expect;
 
 chai.use(chaiHttp);
@@ -21,6 +21,10 @@ describe("Cases Routes", () => {
     authorId: "4722caf7-c73c-4a44-a87e-5012f7f59f7c",
     id: "8f83e61e-5fed-411a-af7e-719c9677130c",
   };
+
+  after(() => {
+    closeServer();
+  });
 
   describe("GET /cases", () => {
     it("debe devolver todos los casos", (done) => {

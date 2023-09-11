@@ -73,7 +73,6 @@ userRoutes.route("/users/:email").get(async (req, res) => {
 //get a single user by id
 userRoutes.route("/user/id/:id").get(async (req, res) => {
   const { id } = req.params;
-  console.log(id);
   const user = await prisma.user.findUnique({
     where: {
       id: id,
@@ -120,13 +119,11 @@ userRoutes.route("/users").post(async (req, res) => {
   //create a new user
   const { name, email } = req.body;
   let user = null;
-  //verificamos si el usuario ya existe
   user = await prisma.user.findUnique({
     where: {
       email: email,
     },
   });
-  //SI EXISTE RETORNA  EL USUARIO
   if (user) {
     return res.status(200).json({ user });
   } else {
