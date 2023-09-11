@@ -59,7 +59,7 @@ casesRoutes.route("/cases/:id").get(async (req, res) => {
   const { id } = req.params;
   const case_ = await prisma.case.findUnique({
     where: {
-      id: parseInt(id),
+      id: id,
     },
   });
   if (!case_) {
@@ -102,12 +102,71 @@ casesRoutes.route("/cases/user/:id").get(async (req, res) => {
       authorId: id,
     },
   });
-  if (!cases) {
+  if (!cases || cases.length === 0) {
     res
       .status(404)
       .json({ message: "No se encontraron casos para el ID de usuario" });
   } else {
     res.status(200).json({ cases });
+  }
+});
+
+/**
+ * @swagger
+ * /cases/user/email/{email}:
+ *   get:
+ *     summary: Obtener casos por correo electrónico de usuario
+ *     parameters:
+ *       - name: email
+ *         in: path
+ *         description: Correo electrónico del usuario
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Casos encontrados
+ *         content:
+ *           application/json:
+ *             example:
+ *               cases:
+ *                 - id: 1
+ *                   title: Caso 1
+ *                 - id: 2
+ *                   title: Caso 2
+ *       '404':
+ *         description: Usuario no encontrado o no se encontraron casos
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: No se encontró el usuario o no se encontraron casos
+ */
+//get al cases by by user for email
+casesRoutes.route("/cases/user/email/:email").get(async (req, res) => {
+  const { email } = req.params;
+  const user = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+  if (!user) {
+    res.status(404).json({ message: "No se encontró el usuario" });
+  } else {
+    const cases = await prisma.case.findMany({
+      where: {
+        authorId: user.id,
+      },
+    });
+    if (!cases) {
+      res.status(404).json({ message: "No se encontró el usuario" });
+    } else {
+      const formattedCases = cases.map((caseItem) => ({
+        ...caseItem,
+        createdAt: new Date(caseItem.createdAt).toLocaleString(),
+      }));
+
+      res.status(200).json({ cases: formattedCases });
+    }
   }
 });
 
@@ -214,7 +273,7 @@ casesRoutes.route("/cases").post(async (req, res) => {
     },
   });
 
-  res.status(200).json({ case_ });
+  res.status(200).json({ case_, assignee });
 });
 
 export { casesRoutes };
