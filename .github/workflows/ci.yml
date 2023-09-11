@@ -17,10 +17,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "18" # Cambia esto a la versión de Node.js que estés utilizando
+          node-version: "18"
 
       - name: Install dependencies
         run: npm install
 
       - name: Run tests
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npm test
