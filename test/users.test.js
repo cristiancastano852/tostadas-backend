@@ -1,6 +1,6 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
-import app from "../index.js";
+import app, { closeServer } from "../index.js";
 import { PrismaClient } from "@prisma/client";
 const expect = chai.expect;
 const prisma = new PrismaClient();
@@ -14,9 +14,9 @@ describe("User Routes", () => {
   };
 
   before(async () => {
-    await prisma.user.create({
-      data: testUser,
-    });
+    // await prisma.user.create({
+    //   data: testUser,
+    // });
   });
 
   after(async () => {
@@ -24,6 +24,34 @@ describe("User Routes", () => {
       where: {
         email: testUser.email,
       },
+    });
+  });
+
+  describe("POST /users", () => {
+    it("debe crear un nuevo usuario", (done) => {
+      chai
+        .request(app)
+        .post("/users")
+        .send(testUser)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.user).to.be.an("object");
+          expect(res.body.user.email).to.equal(testUser.email);
+          done();
+        });
+    });
+
+    it("debe devolver el usuario existente si el correo electrónico ya está registrado", (done) => {
+      chai
+        .request(app)
+        .post("/users")
+        .send(testUser)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.user).to.be.an("object");
+          expect(res.body.user.email).to.equal(testUser.email);
+          done();
+        });
     });
   });
 
@@ -61,34 +89,6 @@ describe("User Routes", () => {
           expect(res.body.message).to.equal(
             "Ningun usuario asociado al correo electronico " + email
           );
-          done();
-        });
-    });
-  });
-
-  describe("POST /users", () => {
-    it("debe crear un nuevo usuario", (done) => {
-      chai
-        .request(app)
-        .post("/users")
-        .send(testUser)
-        .end((err, res) => {
-          expect(res).to.have.status(200);
-          expect(res.body.user).to.be.an("object");
-          expect(res.body.user.email).to.equal(testUser.email);
-          done();
-        });
-    });
-
-    it("debe devolver el usuario existente si el correo electrónico ya está registrado", (done) => {
-      chai
-        .request(app)
-        .post("/users")
-        .send(testUser)
-        .end((err, res) => {
-          expect(res).to.have.status(200);
-          expect(res.body.user).to.be.an("object");
-          expect(res.body.user.email).to.equal(testUser.email);
           done();
         });
     });
