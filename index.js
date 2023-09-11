@@ -32,9 +32,25 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.listen(port, () =>
+const server = app.listen(port, () =>
   console.log(`
 🚀 Server ready at: ${port}`)
 );
+
+process.on("SIGTERM", () => {
+  console.log("Received SIGTERM signal. Closing server gracefully.");
+  server.close(() => {
+    console.log("Server closed.");
+    process.exit(0);
+  });
+});
+
+process.on("SIGINT", () => {
+  console.log("Received SIGINT signal. Closing server gracefully.");
+  server.close(() => {
+    console.log("Server closed.");
+    process.exit(0);
+  });
+});
 
 export default app;
